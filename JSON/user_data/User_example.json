@@ -3,8 +3,8 @@
     "user_persona": "",
     "long_term_memory": "",
     "current_chat": [],
-    "last_chats": [
-    ],
+    "last_chats": [],
+    "old_chats": [],
     "settings": {
       "voicing": false,
       "speechMode": false,

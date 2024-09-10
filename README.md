@@ -1,76 +1,116 @@
-# Название проекта
+# AmadeusAI
 
-Краткое описание проекта: веб-приложение и сервер для общения с персонажем визуальной новеллы, с использованием искусственного интеллекта.
+[![](https://i.ibb.co/1rh1NwM/screen0.png)](https://i.ibb.co/1rh1NwM/screen0.png)
 
-[![](https://i.ibb.co/McWrH3f/screen0.png)](https://i.ibb.co/McWrH3f/screen0.png)
+https://youtu.be/nJKQ2mx9Gns?feature=shared
 
+## About
 
-## О проекте
+Node.js application that maximally accurately simulates the Amadeus System from the 'Steins;Gate 0' visual novel
 
-Более подробное описание, функциональность и особенности проекта.
+## Installation and Setup
 
-## Установка и настройка
+### Requirements
 
-### Требования
+- Node.js
+- Some cans of Dr.Pepper
 
-- Node.js (версия)
-- Python (версия)
-- База данных (если используется)
-- Дополнительные системные требования
+### Installation
 
-### Установка
+1. Clone the repository:
 
-1. Клонирование репозитория:
-
-```
-git clone https://github.com/yourusername/project.git
+```bash
+git clone https://github.com/EdVollmond/AmadeusAI.git
 ```
 
-2. Установка зависимостей:
+2. Create users file:
 
-- Для серверной части:
+- In the JSON directory, create a file named `users.json` with the following structure:
 
-```
-cd server
-npm install
-```
-
-- Для клиентской части (фронтенда):
-
-```
-cd frontend
-npm install
-```
-
-3. Настройка конфигурационных файлов и переменных окружения:
-
-- Создать `.env` файл в папках `server` и `frontend` с необходимыми параметрами.
-- Настроить доступ к API и базам данных.
-
-### Запуск проекта
-
-- Запуск сервера:
-
-```
-cd server
-npm start
+```json
+{
+  "User": {
+    "name": "",
+    "token": "",
+    "telegram_username": "",
+    "telegram_chat_ids": {
+      "amadeus_kurisu": ""
+    },
+    "input_tokens": 0,
+    "output_tokens": 0
+  }
+}
 ```
 
-- Запуск фронтенда:
+- "User" is the unique user ID in the system;
+- "name" is the name to be used in the chat;
+- "token" is a unique key for authorizing access requests, generated using the HMAC SHA256 algorithm where the user ID is used as data, and the user's password as the key. You can generate this in the `tokenizer.mjs` file.
+
+3. Create user's data:
+
+- Create a separate `.json` file (the filename should match the user ID from the previous step) for each user in `JSON/user_data` with the following structure:
+
+```json
+{
+  "amadeus_kurisu": {
+    "user_persona": "",
+    "long_term_memory": "",
+    "current_chat": [],
+    "last_chats": [],
+    "old_chats": [],
+    "settings": {
+      "voicing": false,
+      "speechMode": false,
+      "noAss": true,
+      "delooping": false
+    }
+  }
+}
+```
+
+- "amadeus_kurisu" is the unique character ID in the system (you can also edit or create custom characters in the `JSON/chars` folder);
+- "user_persona" is a brief user information from the character's point of view (should be automatically filled in when reaching the token limit in a dialogue);
+- "long_term_memory" is a summary of old user dialogues (should be automatically filled in when reaching the token limit in a dialogue);
+- "current_chat" is the current chat with the character (included in the contextual window);
+- "last_chats" are the previous dialogues with the character (included in the contextual window);
+- "old_chats" are old dialogues included in the summary (not included in the contextual window);
+- "settings" are user settings.
+
+4. Environment configuration:
+
+This is the most ambiguous part. Depending on your preferences for the choice of host for the language model, this option varies greatly. Currently, I am using the DeepInfra API for speech and image recognition, as well as image generation. To access the language model, I use API keys from Google. It is also supposed to run all this as a Telegram bot. Therefore, my `.env` file looks like this:
 
 ```
-cd frontend
-npm start
+KURISU_BOT_TOKEN = 
+PROXY_HOST = 
+PROXY_PORT = 
+PROXY_USERNAME = 
+PROXY_PASSWORD = 
+DEEPINFRA_API_KEY = 
+GOOGLE_GEN_AI_KEY =
 ```
 
-## Использование
+Again, in your case, it may be significantly different.
 
-Описание, как использовать приложение, как общаться с персонажем, основные функции.
+### Launching the Project
 
-## Лицензия
+After you have configured the environment, created users and characters, you can proceed to launch the project.
 
-Здесь укажите информацию о лицензии, под которой распространяется ваш проект. Например, MIT, GNU GPL, Apache 2.0 и так далее.
+- Start the server:
 
-## Контакты
+```bash
+node app.mjs
+```
 
-Ваши контактные данные (почта, LinkedIn, Twitter, и т.д.), если хотите, чтобы пользователи или разработчики могли связаться с вами.
+By default, the server will start at http://localhost:8000/, where you can connect through your browser.
+
+## Usage
+
+WIP
+
+## Contact
+
+Official Telegram channel of the project: https://t.me/kurisu_shrine
+
+
+[![](https://i.ibb.co/17JC8qL/screen1.png)](https://i.ibb.co/17JC8qL/screen1.png)

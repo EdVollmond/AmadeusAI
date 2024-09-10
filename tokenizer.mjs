@@ -26,4 +26,4 @@ function generateToken(data, key) {
 
 //console.log(randomToken());
 
-console.log(generateToken("Lara_Titova", randomToken()));
+console.log(generateToken("User", randomToken()));
