@@ -1,0 +1,15 @@
+{
+  "amadeus_kurisu": {
+    "user_persona": "",
+    "long_term_memory": "",
+    "current_chat": [],
+    "last_chats": [
+    ],
+    "settings": {
+      "voicing": false,
+      "speechMode": false,
+      "noAss": true,
+      "delooping": false
+    }
+  }
+}

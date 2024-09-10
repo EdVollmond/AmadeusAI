@@ -1,0 +1,833 @@
+:root {
+  --border-color: #ff6800;
+  --border-color-transparent: #ff660080;
+  --glow-color: #df1a00;
+  --bg-color: #00000080;
+  --color-text-yellow: #f9b200;
+
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-image: linear-gradient(var(--border-color), var(--glow-color));
+  background-size: 100%;
+}
+
+::-webkit-scrollbar-thumb {
+  background: white;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: white;
+}
+
+#character-container {
+  top: 0;
+  left: 0;
+  position: fixed;
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+#character-container img {
+  position: sticky;
+  margin-top: -2%;
+  min-height: 105%;
+  opacity: 100%;
+  transition: filter 0.2s;
+  user-select: none;
+  filter: brightness(95%);
+}
+
+#character-container img:hover {
+  opacity: 100%;
+  filter: brightness(100%);
+}
+
+#emotion-selector {
+  background: url(/public/gfx/emotions_background.png) no-repeat;
+  background-size: 30.1vh;
+  background-position: right top;
+  text-align: right;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 66vh;
+  width: 100%;
+}
+
+#selector-container-left {
+  top: 2.3vh;
+  position: fixed;
+  right: 8.4vh;
+  width: 7.2vh;
+  height: 66vh;
+}
+
+
+#selector-container-right {
+  top: 6.3vh;
+  position: fixed;
+  right: 1.8vh;
+  width: 7.2vh;
+  height: 66vh;
+}
+
+
+.emotion-select {
+  background-size: 80%;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: grayscale(100%);
+  text-align: center;
+  display: block;
+  width: 100%;
+  transition: all 0.2s;
+  user-select: none;
+  font-size: 3.5em;
+  margin-bottom: 0.8vh;
+  aspect-ratio: 1 / 1;
+  
+  border-radius: 50%;
+}
+
+
+.emotion-select:hover {
+  filter: grayscale(0%);
+  box-shadow: 0px 0px 8px var(--glow-color);
+}
+
+
+
+#selector-container div:hover {
+  box-shadow: 0 0 10px var(--glow-color), 0 0 10px var(--glow-color);
+}
+
+
+
+#chat-area {
+  text-align: center;
+  position: fixed;
+  margin: auto;
+  bottom: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 33%;
+  background: url("/public/gfx/dialogue_bar.png") no-repeat;
+  background-size: cover;
+  background-position: top;
+}
+
+.chat-text {
+  display: block;
+  margin: auto;
+  margin-top: 2%;
+  background-color: transparent;
+  border-color: transparent;
+  border-width: 2px;
+  color: white;
+  text-shadow: 0px 0px 2px #000, 0px 0px 2px #000, 0px 0px 2px #000, 0px 0px 2px #000, 0px 0px 2px #000, 0px 0px 2px #000;
+  font-family: Arial, Helvetica, sans-serif;
+  resize: none;
+  text-align: left;
+  z-index: 1;
+}
+
+@media (orientation: landscape) {
+
+  .chat-text {
+    width: 70%;
+    height: 70%;
+    font-size: 2em;
+  }
+
+  #right-buttons-container{
+    position: fixed;
+    width: 20%;
+    height: 5%;
+    right: 2%;
+    bottom: 2%;
+    width: 295px;
+  }
+
+  .right-buttons-container-half{
+    display: inline-block;
+    width: 49%;
+    height: 100%;
+  }
+
+  
+  .right-buttons {
+    aspect-ratio: 20 / 9;
+    border-color: transparent; 
+    transition: filter 0.2s;
+    height: 100%;
+    opacity: 100%;
+    min-height: 48px;
+  }
+
+}
+
+@media (orientation: portrait) {
+
+  .chat-text {
+    width: 90%;
+    height: 70%;
+    font-size: 3em;
+  }
+
+  #right-buttons-container{
+    position: fixed;
+    width: 100%;
+    height: 8%;
+    bottom: 2%;
+  }
+
+  .right-buttons-container-half{
+    display: inline-block;
+    width: 49%;
+    height: 100%;
+  }
+
+  .right-buttons {
+    aspect-ratio: 20 / 9;
+    border-color: transparent; 
+    height: 100%;
+    transition: filter 0.2s;
+    opacity: 100%;
+    filter: brightness(80%);
+  }
+
+}
+
+.settings-block{
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  
+}
+.settings-block div{
+  display: inline-block;
+  margin-left: 12px;
+  margin-right: 12px;
+  color: white;
+  font-family: "Consolas";
+  overflow-wrap: break-word;
+}
+
+.settings-block:hover{
+  color: #ffd9ad;
+}
+
+.settings-block-rightside{
+  user-select: none;
+}
+
+.settings-block-rightside:hover{
+  color: #ffd9ad;
+  text-shadow: 0 0 10px var(--glow-color);
+}
+
+
+
+
+/* .settings-block p{
+  display: inline-block;
+  margin-left: 20pt;
+}
+
+.settings-block input{
+  display: inline-block;
+  margin-left: 20pt;
+} */
+
+.chat-text:focus {
+  border-color: var(--border-color-transparent);
+  outline: none;
+}
+
+#buttom-block{
+  display: inline-block;
+  width: 90%;
+  height: 20%;
+}
+
+#char-counter {
+  width: 70%;
+  text-align: left;
+  color: white;
+  font-family: "Consolas";
+  margin: auto;
+}
+
+
+#role-name-area {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  margin-bottom: 1%;
+  text-align: center
+}
+
+#role-name-area img {
+  display: inline;
+  height: 14px;
+}
+
+#role-name {
+  display: inline;
+  text-shadow: 0px 0px 2px #000, 0px 0px 2px #000, 0px 0px 2px #000,
+    0px 0px 2px #000, 0px 0px 2px #000, 0px 0px 2px #000;
+  color: var(--border-color);
+  font-size: 14pt;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-left: 12px;
+  margin-right: 12px;
+}
+
+@media (orientation: landscape) {
+
+  #role-name {
+    font-size: 1.5em;
+  }
+}
+
+@media (orientation: portrait) {
+
+  #role-name {
+    font-size: 2em;
+  }
+}
+
+
+.right-buttons:hover {
+  opacity: 100%;
+  filter: brightness(100%);
+}
+
+.right-buttons:disabled {
+  opacity: 100%;
+  filter: brightness(50%);
+}
+
+#send-button {
+  background: url("/public/gfx/send_button.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+#send-button:hover {
+  background: url("/public/gfx/send_button_glow.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+#answer-button {
+  background: url("/public/gfx/answer_button.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+  transition: all 0.2s;
+}
+
+#answer-button:hover{
+  background: url("/public/gfx/answer_button_glow.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+#regen-button {
+  background: url("/public/gfx/regen_button.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+  transition: all 0.2s;
+}
+
+#regen-button:hover {
+  background: url("/public/gfx/regen_button_glow.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+
+#back-button {
+  background: url("/public/gfx/back_button.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+  transition: all 0.2s;
+}
+
+#back-button:hover {
+  background: url("/public/gfx/back_button_glow.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+#submit-button {
+  background: url("/public/gfx/submit_button.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+  transition: all 0.2s;
+}
+
+#submit-button:hover {
+  background: url("/public/gfx/submit_button_glow.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+#cancel-button {
+  background: url("/public/gfx/cancel_button.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+  transition: all 0.2s;
+}
+
+#cancel-button:hover {
+  background: url("/public/gfx/cancel_button_glow.png") no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+
+#ring-loading {
+  width: 32px;
+  height: 32px;
+  filter: grayscale(1);
+  background-size: cover;
+  position: fixed;
+}
+
+#mode-selector {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: block;
+  border: 2px solid var(--border-color);
+  width: 13%;
+  height: 96px;
+  text-align: center;
+}
+
+#mode-selector div{
+  display: block;
+  height: 33%;
+  width: 100%;
+  user-select: none;
+}
+
+#mode-selector div:hover{
+  
+  box-shadow: 0 0 10px var(--glow-color), 0 0 10px var(--glow-color);
+  
+}
+
+#mode-selector div span{
+  vertical-align: middle;
+}
+
+.historymessagefromchar {
+  position: relative;
+  overflow-wrap: break-word;
+  margin-top: 8px;
+  margin-left: 8px;
+  color: #ffd9ad;
+  font-family: "Consolas";
+}
+
+.historymessagefromuser {
+  position: relative;
+  overflow-wrap: break-word;
+  margin-left: 8px;
+  margin-top: 8px;
+  color: white;
+  font-family: "Consolas";
+}
+
+#left-block {
+  
+  height: 65vh;
+  display: block;
+  position: fixed;
+  top: 1vh;
+  left: 1vw;
+}
+
+@media (orientation: portrait) {
+
+  #left-block {
+    left: 2vw;
+    font-size: 28pt;
+  }
+
+}
+
+@media (orientation: landscape) {
+
+  #left-block {
+    width: calc(180px + 11vw);
+  }
+}
+
+
+#left-block-buttons-container {
+  height: 90px;
+  margin-left: calc(180px + 1vw);
+  width: 10vw;
+  display: grid;
+  margin-top: 1vh;
+}
+
+@media (orientation: portrait) {
+
+  #left-block-buttons-container {
+    margin-left: calc(180px + 10vw);
+    width: calc(96vw - 180px - 10vw);
+    height: 120px;
+    display: flex;
+  }
+
+}
+
+
+.left-block-button {
+  flex-grow: 1; /* Растягивает кнопки, чтобы они заполнили ширину контейнера */
+  color: white;
+  font-weight: bold;
+  background-color: var(--bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  height: 32px;
+  transition: all 0.2s;
+  margin: 0 5px; 
+  
+}
+
+@media (orientation: portrait) {
+
+
+  .left-block-button {
+    height: calc(120px - 1vh);
+    font-size: 24pt;
+  }
+
+}
+
+.left-block-button:hover {
+  color: var(--glow-color);
+  box-shadow: 0 0 10px var(--glow-color);
+}
+
+#left-block-content-container{
+  display: block;
+  height: calc(100% - 90px - 1vh);
+}
+
+
+.left-block-history {
+  max-width: 98vw;
+  max-height: 48vh;
+  width: fit-content;
+  height: 100%;
+}
+
+#show-history-button {
+  display: none;
+  background-color: #000;
+  border: 2px solid var(--border-color);
+  height: 128px;
+  width: 42px;
+  vertical-align: top;
+  transition: all 0.2s;
+}
+
+#show-history-button p {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  color: white;
+  transform: rotate(90deg) translateY(39px) translateX(-1px);
+  width: max-content;
+}
+
+#show-history-button p:hover {
+  color: var(--glow-color);
+}
+
+#show-history-button:hover {
+  box-shadow: 0 0 10px var(--glow-color);
+}
+
+.history-buttons:hover {
+  color: var(--glow-color);
+  box-shadow: 0 0 10px var(--glow-color);
+}
+
+.history-buttons-container {
+  width: 100%;
+  height: 32px;
+  display: flex;
+}
+@media (orientation: portrait) {
+
+  .history-buttons-container {
+    height: 64px;
+  }
+
+}
+
+
+.history-buttons {
+  flex-grow: 1; /* Растягивает кнопки, чтобы они заполнили ширину контейнера */
+  color: white;
+  font-weight: bold;
+  background-color: var(--bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  height: 100%;
+  width: 50%;
+  transition: all 0.2s;
+  margin: 0 5px; /* Add margin around buttons, you can modify the amount to your preference */
+}
+
+@media (orientation: portrait) {
+
+  .history-buttons {
+    font-size: 24pt;
+  }
+
+}
+
+
+
+#history-text {
+  background:var(--bg-color);
+  background-position: center;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 1vh;
+}
+
+@media (orientation : landscape) {
+  #history-text {
+    resize: both;
+    width: calc(180px + 11vw);
+    min-width: calc(180px + 11vw);
+    min-height: 5vh;
+  }
+}
+
+@media (orientation : portrait) {
+  #history-text {
+    width: 96vw;
+  }
+}
+
+#settings-content {
+  background:var(--bg-color);
+  background-position: center;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 1vh;
+}
+
+@media (orientation : landscape) {
+  #settings-content {
+    width: calc(180px + 11vw);
+    min-width: calc(180px + 11vw);
+    min-height: 5vh;
+  }
+}
+
+@media (orientation : portrait) {
+  #settings-content {
+    width: 96vw;
+  }
+}
+
+
+
+
+/* #left-block-settings{
+  background:var(--bg-color);
+  height: 100%;
+  width: 98.65%;
+  border-radius: 4px;
+  border: 2px solid var(--border-color);
+} */
+
+#calendar-button {
+  text-align: center;
+  background: url(/public/gfx/calendar_button.png) no-repeat;
+  background-size: contain;
+  position: fixed;
+  display: flex;
+  aspect-ratio: 2 / 1;
+  top: 1vh;
+  left: 1vw;
+  min-width: 128px;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+#calendar-button-text-container {
+  text-shadow: 0px 0px 4px var(--border-color)87;
+  margin-top: 4px;
+  color: white;
+}
+
+
+@media (orientation : landscape) {
+  #calendar-button {
+    width: 180px;
+  }
+  #calendar-button-date{
+    margin-right: 4px;
+    font-size: 2em;
+  }
+  
+  #calendar-button-week{
+    margin-left: 4px;
+    font-size: 1em;
+  }
+  
+}
+
+@media (orientation : portrait) {
+  #calendar-button {
+    height: 120px;
+  }
+  #calendar-button-date{
+    margin-right: 4px;
+    font-size: 2.4em;
+  }
+  
+  #calendar-button-week{
+    margin-left: 4px;
+    font-size: 1.2em;
+  }
+  
+}
+
+
+#calendar-button:hover{
+  background: url("/public/gfx/calendar_button_glow.png") no-repeat;
+  background-size: contain;
+  transition: all 0.2s;
+}
+
+
+#chat-screen{
+  height: 100%;
+  width: 100%;
+}
+
+
+#start-button-container {
+  position: relative;
+  margin: auto;
+  width: 860px;
+  margin-top: 64px;
+}
+
+#amadeus-main-logo {
+  display: block;
+  margin: auto;
+  width: 640px;
+}
+
+.start-button {
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  margin-top: 64px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 128px;
+  font-family: 'Times New Roman', Times, serif;
+  color: var(--color-text-yellow);
+  text-shadow: 0 0 16px #f95f00, 0 0 16px #f95f00;
+  font-size: 24pt;
+  font-weight: bold;
+  text-align: center;
+}
+
+
+@keyframes blinkFade {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.blink {
+  animation: blinkFade 1s infinite;
+}
+
+/* .start-button-disabled {
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  margin-top: 64px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 128px;
+  transition: all 0.2s;
+}
+
+.start-button:hover {
+  background-image: url(/public/gfx/start_chat_button_hover.png);
+} */
+
+#left-chat-buttons-container{
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  border: 2px solid var(--border-color);
+  width: 13%;
+  height: 70%;
+  text-align: center;
+  margin-top: 24px;
+}
+#left-chat-buttons-container div{
+  color: white;
+  display: block;
+  width: 100%;
+  user-select: none;
+}
+#left-chat-buttons-container div:hover{
+  color: var(--glow-color);
+  box-shadow: 0 0 10px var(--glow-color), 0 0 10px var(--glow-color);
+  
+}
+
+.volume-meter-wrapper {
+  position: fixed;
+  width: 100%;
+  height: 12px;
+  top: 66%;
+  left: 0;
+}
+
+#volume-meter {
+  width: 100%;
+  height: 100%;
+}

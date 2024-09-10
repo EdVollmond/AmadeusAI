@@ -1,0 +1,5 @@
+{
+    "model": "meta-llama/Meta-Llama-3.1-70B-Instruct",
+    "max_tokens": 256,
+    "frequency_penalty": 0.05
+}

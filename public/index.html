@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Amadeus System</title>
+
+        
+        <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+        
+                
+        <script>
+
+            function getCookie(name) {
+                let matches = document.cookie.match(new RegExp(
+                    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+                ));
+                return matches ? decodeURIComponent(matches[1]) : undefined;
+                }
+            
+            async function getUser(token,existCookie){
+                console.log("Token=" + token);
+
+                let data = {
+                    token: token,
+                    charId: "amadeus_kurisu"
+                };
+
+                let url = "/token_check"
+
+
+                $.ajax({
+                    method: "POST",
+                    url: url,
+                    data: data,
+                    dataType: "json",
+                    success: function (result) {
+                        console.log("SUCCESS");
+                        console.log(result);
+                        
+                        
+                        if (result.code == 200) {
+                            console.log("USERDATA: "+ JSON.stringify(result));
+
+                            if (existCookie==false){
+                                let cookie = "token="+token;
+                                document.cookie = cookie;
+                            }
+
+                            window.location.href = '/chat';
+
+
+                        } else {
+                            alert("AUTHENTICATION ERROR: INVALID TOKEN");
+                            window.location.href = '/login';
+                        }
+
+
+                        
+                        
+                    },
+                    error: function (result, status) {
+                        console.log("ERROR");
+                        console.log(result);
+
+                        alert("AUTHENTICATION ERROR");
+                        window.location.href = '/login';
+
+
+                    }
+                });
+
+
+            };
+
+            let userData = "";
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            
+            if (document.cookie) {
+                //alert("ЕСТЬ КУКИ");
+                getUser(token,true);
+
+                
+
+            } else {
+
+                if (token != null) {
+                    console.log("Token=" + token);
+
+                    getUser(token,false);
+
+                    
+                    
+                }
+
+                window.location.href = '/login';
+            }
+
+
+        </script>
+
+    </head>
+
+    
+
+
+</html>

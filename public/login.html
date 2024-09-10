@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Amadeus System</title>
+        <link rel="stylesheet" href="/public/css/login.css">
+        <link rel="stylesheet" href="/public/css/bg.css">
+        
+
+        <div id="bg-text-area">
+            <div class="scroll-text" id="scroll-text0"></div>
+            <div class="scroll-text" id="scroll-text1"></div>
+        </div>
+
+        <script>
+
+            const lineTime = 100;
+    
+
+            function getRandomInt(max) {
+                return Math.floor(Math.random() * max);
+            }
+
+
+
+            function addLine0() {
+                let scrollText0 = document.getElementById("scroll-text0");
+                
+                let newLine = document.createElement("div");
+
+                var lineLenght = getRandomInt(32);
+                var lineSeparator = getRandomInt(128);
+                var randomtext = "/";
+                while (lineLenght >= 0) {
+                    randomNum = getRandomInt(2);
+                    randomtext = randomtext + randomNum;
+                    lineLenght--;
+                }
+                if (lineSeparator < 1) {
+                    newLine.textContent = "--------------------------------";
+                } else {
+                    newLine.textContent = randomtext;
+                }
+                newLine.className = "bg-line";
+                scrollText0.insertBefore(newLine,scrollText0.firstElementChild);
+            }
+            
+            function addLine1() {
+                let scrollText1 = document.getElementById("scroll-text1");
+                
+                let newLine = document.createElement("div");
+                var lineSeparator = getRandomInt(128);
+                var lineLenght = getRandomInt(32);
+                var randomtext = "/";
+                while (lineLenght >= 0) {
+                    randomNum = getRandomInt(2);
+                    randomtext = randomtext + randomNum;
+                    lineLenght--;
+                }
+                if (lineSeparator < 1) {
+                    newLine.textContent = "--------------------------------";
+                } else {
+                    newLine.textContent = randomtext;
+                }
+                newLine.className = "bg-line";
+                scrollText1.insertBefore(newLine,scrollText1.firstElementChild);
+            }
+
+            for (let i = 0; i < 200; i++) {
+                addLine0();
+                addLine1();
+            }
+            
+            setInterval(addLine0, lineTime);
+            setInterval(addLine1, lineTime);
+        </script>
+
+    </head>
+
+
+    
+    <body>
+
+
+        <div id="logging">
+            <img id="amadeus-main-logo" src = "/public/gfx/amadeus_logo.svg" alt="AMADEUS LOGO"/>
+            <form id="logging-form" action="/login" method="post">
+                <div id="input-container-userid">
+                    <label for="userId" class="login-field-label">USER ID</label>
+                    <input type="text" id="userId" name="userId" class="login-field">
+                </div>
+                <div id="input-container-password">
+                    <label for="password" class="login-field-label">PASSWORD</label>
+                    <input type="password" id="password" name="password" class="login-field"/>
+                    <button type="submit" id="login-btn">Submit</button>
+                </div>
+                
+            </form>
+
+        </div>
+        <div id="error-field">
+        </div>
+
+
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            let error = urlParams.get('error');
+            let errorField = document.getElementById("error-field");
+            if (error != null) {
+
+                
+                    if (error == "user"){
+                        error = "AUTHENTICATION ERROR: USER NOT FOUND";
+                    } else if (error == "password") {
+                        error = "AUTHENTICATION ERROR: INCORRECT PASSWORD";
+                    } else {
+                        error = "AUTHENTICATION ERROR: UNKNOWN ERROR";
+                    };
+                
+                    errorField.innerHTML = error;
+            }else{
+                errorField.innerHTML = "";
+            }
+        </script>
+    </body>
+
+
+</html>

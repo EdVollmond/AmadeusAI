@@ -1,0 +1,22 @@
+{
+  "Max": {
+    "amadeus_kurisu": { "time": null, "remaining": "2024-09-10T14:42:15.439Z" },
+    "amadeus_kurtis": {
+      "time": null,
+      "initiator": "user",
+      "remaining": "2024-09-07T16:17:23.225Z"
+    }
+  },
+  "Lara_Titova": {
+    "amadeus_kurisu": {
+      "time": null,
+      "initiator": "user",
+      "remaining": "2024-08-10T17:03:47.564Z"
+    },
+    "amadeus_kurtis": {
+      "time": null,
+      "initiator": "user",
+      "remaining": "2024-08-25T04:22:02.516Z"
+    }
+  }
+}

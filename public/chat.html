@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Amadeus System</title>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+        
+        <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+        <script src="/public/libs/vosk.js"></script>
+        <script src="https://unpkg.com/audio-buffer-from"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/waud.js/1.0.3/waud.min.js"></script>
+        <script type="application/javascript" src="/public/index.js"></script>
+        <link rel="stylesheet" href="/public/css/chat.css">
+        <link rel="stylesheet" href="/public/css/bg.css">        
+        
+        <div id="bg-text-area">
+            <div class="scroll-text" id="scroll-text0"></div>
+            <div class="scroll-text" id="scroll-text1"></div>
+        </div>
+
+
+        
+
+        <script>//background generation
+
+            const LINETIME = 100;
+    
+
+            function getRandomInt(max) {
+                return Math.floor(Math.random() * max);
+            }
+
+
+
+            function addLine0() {
+                let scrollText0 = document.getElementById("scroll-text0");
+                
+                let newLine = document.createElement("div");
+
+                var lineLenght = getRandomInt(32);
+                var lineSeparator = getRandomInt(128);
+                var randomtext = "/";
+                while (lineLenght >= 0) {
+                    randomNum = getRandomInt(2);
+                    randomtext = randomtext + randomNum;
+                    lineLenght--;
+                }
+                if (lineSeparator < 1) {
+                    newLine.textContent = "--------------------------------";
+                } else {
+                    newLine.textContent = randomtext;
+                }
+                newLine.className = "bg-line";
+                scrollText0.insertBefore(newLine,scrollText0.firstElementChild);
+            }
+            
+            function addLine1() {
+                let scrollText1 = document.getElementById("scroll-text1");
+                
+                let newLine = document.createElement("div");
+                var lineSeparator = getRandomInt(128);
+                var lineLenght = getRandomInt(32);
+                var randomtext = "/";
+                while (lineLenght >= 0) {
+                    randomNum = getRandomInt(2);
+                    randomtext = randomtext + randomNum;
+                    lineLenght--;
+                }
+                if (lineSeparator < 1) {
+                    newLine.textContent = "--------------------------------";
+                } else {
+                    newLine.textContent = randomtext;
+                }
+                newLine.className = "bg-line";
+                scrollText1.insertBefore(newLine,scrollText1.firstElementChild);
+            }
+
+            for (let i = 0; i < 200; i++) {
+                addLine0();
+                addLine1();
+            }
+            
+            setInterval(addLine0, LINETIME);
+            setInterval(addLine1, LINETIME);
+        </script>
+
+
+    </head>
+
+    
+    <body onload="pageload()" style>
+        
+        <script>//load and check user
+            
+
+            const TOKEN = getCookie("token");
+
+            let userData = {};
+            let userChat = {};
+            let username = '';
+            let userId = '';
+            
+            let voicing = false;
+            let speechMode = false;
+            let noAss = false;
+            let delooping = false;
+
+            let allowRecording = true;
+            
+            let voiceData = "";
+
+
+            function voicingClick(){
+                SAVESETTINGS_BUTTON.innerHTML = "SAVE";
+                const VOICING_INPUT = document.getElementById("settings-voicing-input");
+                if (voicing){
+                    voicing = false;
+                    VOICING_INPUT.innerHTML = "OFF";
+                    console.log('voicing off');
+                }else{
+                    voicing = true;
+                    VOICING_INPUT.innerHTML = "ON";
+                    console.log('voicing on');
+                }
+            }
+
+            function speechModeClick(){
+                SAVESETTINGS_BUTTON.innerHTML = "SAVE";
+                const SPEECHMODE_INPUT = document.getElementById("settings-speechmode-input");
+                if (speechMode){
+                    stopRec();
+                    speechMode = false;
+                    SPEECHMODE_INPUT.innerHTML = "OFF";
+                    console.log('speechMode off');
+                }else{
+                    //startRec();
+                    speechMode = true;
+                    SPEECHMODE_INPUT.innerHTML = "ON";
+                    console.log('speechMode on');
+                }
+            }
+
+            function noassModeClick(){
+                SAVESETTINGS_BUTTON.innerHTML = "SAVE";
+                const NOASSMODE_INPUT = document.getElementById("settings-noass-input");
+                if (noAss){
+                    noAss = false;
+                    NOASSMODE_INPUT.innerHTML = "OFF";
+                    console.log('noAss off');
+                }else{
+                    noAss = true;
+                    NOASSMODE_INPUT.innerHTML = "ON";
+                    console.log('noAss on');
+                }
+            }
+
+            function deloopingModeClick(){
+                SAVESETTINGS_BUTTON.innerHTML = "SAVE";
+                const DELOOPING_INPUT = document.getElementById("settings-delooping-input");
+                if (delooping){
+                    delooping = false;
+                    DELOOPING_INPUT.innerHTML = "OFF";
+                    console.log('delooping off');
+                }else{
+                    delooping = true;
+                    DELOOPING_INPUT.innerHTML = "ON";
+                    console.log('delooping on');
+                }
+            }
+
+
+            function getCookie(name) {
+                let matches = document.cookie.match(new RegExp(
+                    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+                ));
+                return matches ? decodeURIComponent(matches[1]) : undefined;
+                }
+
+            async function getUser(token){
+                
+                console.log("Token=" + token);
+
+                let data = {
+                    token: token,
+                    charId: "amadeus_kurisu"
+                };
+
+                let url = "/token_check"
+
+                let response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+                    },
+                    body: new URLSearchParams(data)
+                });
+    
+                if (response.ok) {
+
+                    console.log("SUCCESS");
+                    console.log(response);
+
+                    response = await response.json();
+
+                    if (response.code == 200) {
+
+                        if (response.remaining){
+                            alert("AMADEUS IS CURRENTLY UNAVALABLE. PLEASE TRY AGAIN LATER.");
+                        } else {
+                            userData = response;
+                            username = userData.username;
+                            userId = userData.user;
+                            userChat = userData.chat;
+                            
+                            settings = JSON.parse(userData.settings);
+
+                            if (settings!=null){
+                                voicing = settings.voicing;
+                                speechMode = settings.speechMode;
+                                noAss = settings.noAss;
+                                delooping = settings.delooping;
+                                if (speechMode){
+                                    
+                                    //startRec();
+                                }
+                            }
+
+
+
+                            historyLoad(true, false);
+                        }
+
+                    } else {
+                        alert("AUTHENTICATION ERROR: INVALID TOKEN");
+                        window.location.href = "/login";
+                    }
+
+                } else {
+                    console.log("ERROR");
+                    console.log(error);
+
+                    alert("AUTHENTICATION ERROR");
+                    window.location.href = "/login";
+                }
+                    // .then(response => response.json())
+                    // .then(result => {
+                    //     console.log("SUCCESS");
+                    //     console.log(result);
+
+                    //     if (result.code == 200) {
+                    //         userData = result;
+                    //         username = userData.username;
+                    //         userId = userData.user;
+                    //         userChat = userData.chat;
+
+                    //         historyLoad(true, false);
+                    //         createTextareaClone();
+                            
+
+                    //     } else {
+                    //         alert("AUTHENTICATION ERROR: INVALID TOKEN");
+                    //         window.location.href = "/login";
+                    //     }
+                    // })
+                    // .catch(error => {
+
+                    // });
+
+
+            };
+
+            userLoad();
+
+            async function userLoad(){
+                console.log("COOKIE CHEKING")
+                if (document.cookie) {
+                    //alert("ЕСТЬ КУКИ");
+                    
+                    if (TOKEN != null) {
+
+                        getUser(TOKEN);
+
+                    } else {
+                        alert("AUTHENTICATION ERROR: TOKEN NOT FOUND" + document.cookie);
+                        window.location.href = '/login';
+                    }
+                } else {
+                    alert("AUTHENTICATION ERROR: NO USER DATA");
+                    window.location.href = '/login';
+                }
+            };
+
+        </script>
+
+
+
+        
+        <div id="start-button-container"  style="display: block;">
+            <img id="amadeus-main-logo" src = "/public/gfx/amadeus_logo.svg" alt="AMADEUS LOGO"/>
+            <div id="start-button" class="start-button" onclick="startDialogue()" style="display: none;">
+                <p id="start-button-text">PRESS ENTER TO START</p>
+            </div>
+
+        </div>
+
+        
+        <div id="chat-screen" style="display: none;">
+            <div id="character-container">
+                <img id="character-sprite" src="" alt="character_emotion" style="display: inline-block;">
+    
+            </div>
+    
+            <div id="translation-area" style="display: none;">
+                <textarea name="translation-text" id="translation-text" cols="30" rows="10"></textarea>
+            </div>
+
+
+            
+            <div id="chat-area" >
+
+
+
+
+                
+                <div id="role-name-area">
+                    <img src="/public/gfx/dilogue_wing_l.png" alt="dilogue_wing_l" id="dilogue_wing_l">
+                    <div id="role-name"></div>
+                    <img src="/public/gfx/dilogue_wing_r.png" alt="dilogue_wing_r" id="dilogue_wing_r">
+    
+                </div>
+
+                <textarea id="chat-text" class="chat-text" aria-label="chat-text" oninput="checkTextarea()" onclick="isFocusedTextarea()"></textarea>
+                <div id="char-counter" style="display: none;">
+                    <span id="char-current"></span>&nbsp;/
+                    <span id="char-total"></span>
+                </div>
+                <img id="ring-loading" src = "/public/gfx/progress_bar.gif" alt="LOADING" style="display: none;"></img>
+                <div id="right-buttons-container">
+
+                    <div id="right-buttons-container-first" class="right-buttons-container-half">
+                        <button type="button" class="right-buttons" id="regen-button" aria-label="regen-button" style="display: none;"></button>
+                        <button type="button" class="right-buttons" id="back-button" aria-label="back-button" style="display: none;"></button>
+                        <button type="button" class="right-buttons" id="cancel-button" aria-label="cancel-button" style="display: none;"></button>
+                    </div>
+                    <div id="right-buttons-container-second" class="right-buttons-container-half">
+                        <button type="button" class="right-buttons" id="send-button" aria-label="send-button" style="display: inline;" disabled="true"></button>
+                        <button type="button" class="right-buttons" id="answer-button" aria-label="answer-button" style="display: none;"></button>                   
+                        <button type="button" class="right-buttons" id="submit-button" aria-label="submit-button" style="display: none;"></button>
+                    </div>
+
+                    
+                </div>
+
+            </div>
+
+            
+
+            <div id="left-block" style="display: none;">
+
+                <div id="left-block-buttons-container">
+                    <button type="button" class="left-block-button" id="left-block-history-button"  style="display: inline;" onclick="closeOther(this)">HISTORY</button>
+                    <button type="button" class="left-block-button" id="left-block-settings-button" style="display: inline;" onclick="closeOther(this)">SETTINGS</button>
+
+                </div>
+
+
+                <div id="left-block-content-container">
+
+                    <div id="left-block-history" class="left-block-history">
+
+                        <div id="history-text">
+                        </div>
+                        
+                        <div class="history-buttons-container">
+                            <button type="button" class="history-buttons" id="clear-button" style="display: inline;">CLEAR</button>
+                            <button type="button" class="history-buttons" id="remove-button"style="display: inline;">REMOVE</button>
+                        </div>
+                    </div>
+
+                    <div id="left-block-settings" class="left-block-history">
+                        <div id="settings-content">
+                            <div id="settings-voicing" class="settings-block">
+                                <div id="settings-voicing-text" class="settings-block-leftside">CHARACTER'S VOICE</div>
+                                <div id="settings-voicing-input" onclick="voicingClick()" class="settings-block-rightside">OFF</div>
+                            </div>
+                            <div id="settings-speechmode" class="settings-block">
+                                <div id="settings-voicing-text" class="settings-block-leftside">MICROPHONE INPUT</div>
+                                <div id="settings-speechmode-input" onclick="speechModeClick()" class="settings-block-rightside">OFF</div>
+                            </div>
+                            <div id="settings-noass" class="settings-block">
+                                <div id="settings-noass-text" class="settings-block-leftside">NOASS MODE</div>
+                                <div id="settings-noass-input" onclick="noassModeClick()" class="settings-block-rightside">OFF</div>
+                            </div>
+                            <div id="settings-delooping" class="settings-block">
+                                <div id="settings-delooping-text" class="settings-block-leftside">DELOOPING MODE</div>
+                                <div id="settings-delooping-input" onclick="deloopingModeClick()" class="settings-block-rightside">OFF</div>
+                            </div>
+                        </div>
+
+
+                        <div class="history-buttons-container">
+                            <button type="button" class="history-buttons" id="default-settings-button" style="display: inline;">TO DEFAULT</button>
+                            <button type="button" class="history-buttons" id="save-settings-button"style="display: inline;">SAVE</button>
+                        </div>
+                    </div>
+                    
+                </div>
+
+
+            </div>
+
+            <div id="calendar-button" onclick="calendarClick()">
+                <div id="calendar-button-text-container">
+                    <span id="calendar-button-date"></span><span id="calendar-button-week"></span>
+                </div>
+            </div>
+
+
+            <div class="volume-meter-wrapper">
+                <canvas id="volume-meter"></canvas>
+            </div>
+
+
+    
+    
+            <div id="emotion-selector" style="display: none;">
+                <div id="selector-container-left">
+                    <div class="emotion-select" onclick="changeEmotion(this.title)" id="select-emotion-angry" title="angry"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-blushed" title="blushed"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-playful" title="playful"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-thoughtful" title="thoughtful"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-displeased" title="displeased"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-moody" title="moody"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-skeptical" title="skeptical"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-neutral" title="neutral"></div>
+                </div>
+
+                <div id="selector-container-right">
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-apathetic" title="apathetic"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-happy" title="happy"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-serious" title="serious"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-calm" title="calm"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-glad" title="glad"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-sad" title="sad"></div>
+                    
+                    <div class="emotion-select" onclick="changeEmotion(this.title)"id="select-emotion-surprised" title="surprised"></div>
+                    
+                </div>
+    
+            </div>
+
+
+        </div>
+
+
+        <div id="mode-selector"  style = "display:none">
+            <div onclick="modeSwitch(this)" id="switch-openai"><span>OpenAI MODE</span></div>
+            <div onclick="modeSwitch(this)" id="switch-local"><span>Local MODE</span></div>
+            <div onclick="modeSwitch(this)" id="switch-test"><span>Test MODE</span></div>
+        </div>
+
+        <!-- <audio id="audio-player" type="audio/wav"  muted></audio> -->
+
+        
+
+        <!-- <iframe id="audio-player" hidden allow="autoplay" type="audio/flac"></iframe> -->
+
+        <script>//variables
+
+            let audioUrl = "";
+
+            let audioContext;
+
+            let beginning = false;
+            let charReplica = false;
+            let canEdit = true;
+
+            const ROLENAME = document.getElementById("role-name");
+            
+            let skip = false;
+
+            const charId = "amadeus_kurisu";
+
+            let emotion = "";
+            let restext = "";
+            let reqtext = "";
+
+            let mode = "deepinfra";
+
+            const TEXTAREA = document.getElementById("chat-text");
+            
+            let currentChat = [];
+            
+            let historyShown = false;
+
+            let leftblockShown = false;
+
+            let scenario = "chat_from_user";
+
+            const START_BUTTON = document.getElementById("start-button");
+            const START_BUTTON_CONTAINER = document.getElementById("start-button-container");
+            START_BUTTON.classList.add('blink');
+
+            const SEND_BUTTON = document.getElementById("send-button");
+            const ANSWER_BUTTON = document.getElementById("answer-button");
+            const REGEN_BUTTON = document.getElementById("regen-button");
+            const BACK_BUTTON = document.getElementById("back-button");
+            const SUBMIT_BUTTON = document.getElementById("submit-button");
+            const CANCEL_BUTTON = document.getElementById("cancel-button");
+
+            const CHAT_SCREEN = document.getElementById("chat-screen");
+            const CHAT_AREA = document.getElementById("chat-area");
+            
+            const RING_LOADING = document.getElementById("ring-loading");
+            const LEFT_BLOCK = document.getElementById("left-block");
+
+            const HISTORY_BLOCK = document.getElementById("history-block");
+            const HISTORY_CONTAINER = document.getElementById("history-container");
+            const HISTORY_TEXT = document.getElementById("history-text");
+            const TRIANGLE = document.getElementById("show-history-button-triangle");
+
+
+            const CLEAR_BUTTON = document.getElementById("clear-button");
+            const REMOVE_BUTTON = document.getElementById("remove-button");
+            const SAVESETTINGS_BUTTON = document.getElementById("save-settings-button");
+            const DEFAULTSETTINGS_BUTTON = document.getElementById("default-settings-button");
+
+            const MODE_SELECTOR = document.getElementById("mode-selector");
+            
+            
+            const CHAR_COUNTER = document.getElementById('char-counter');
+            const CHAR_CURRENT = document.getElementById('char-current');
+            const CHAR_TOTAL = document.getElementById('char-total');
+
+            const SPRITE_BLOCK = document.getElementById("character-sprite");
+
+            const TRANSLATION_TEXT = document.getElementById("translation-text");
+
+
+            let emotionName = '';
+
+
+            function createTextareaClone() {
+                if (document.getElementById("chat-text-clone")==null) {
+                    console.log("CREATING TEXTAREA CLONE");
+                    const textareaClone = document.createElement('div');
+                    textareaClone.id = 'chat-text-clone';
+                    textareaClone.className = 'chat-text';
+                    document.getElementById("chat-area").appendChild(textareaClone);
+                    textareaClone.innerHTML = TEXTAREA.value.replaceAll("\n", "<br>");
+                    const rect = TEXTAREA.getBoundingClientRect();
+                    textareaClone.style.position = 'fixed';
+                    textareaClone.style.left = `${rect.left}px`;
+                    textareaClone.style.top = `${rect.top}px`;
+                    textareaClone.style.marginTop = "0%";
+                    textareaClone.style.opacity = "0%";
+                    textareaClone.style.color = "red";
+                    textareaClone.style.pointerEvents = "none";
+                    textareaClone.style.border = "4px solid red";
+                }
+            }
+
+            function getLastCharacterCoordinates(element) {
+                var innerHTML = element.innerHTML;
+                // Получение последнего символа
+                var lastChar = innerHTML.slice(-1);
+                // Оборачивание последнего символа в тег <span>
+                var spanWrappedChar = '<span id="last-char">' + lastChar + '</span>';
+                // Замена последнего символа в innerHTML на обернутый в span
+                var updatedInnerHTML = '<span>' + innerHTML.slice(0, -1) + '</span>' + spanWrappedChar;
+                element.innerHTML = updatedInnerHTML;
+                let span = document.getElementById("last-char");
+                let x = span.offsetLeft + element.getBoundingClientRect().x + (span.getBoundingClientRect().width * 2);
+                let y = span.offsetTop + element.getBoundingClientRect().y + (span.getBoundingClientRect().height / 4); 
+                return {x,y};
+            }
+
+        
+
+            // Копируем стили из textarea в textarea-clone
+
+            function updateRingLoadingPosition() {
+
+                let fakeTextarea = document.getElementById("chat-text-clone");
+                let coords;
+                if (fakeTextarea != undefined) {
+                    fakeTextarea.innerHTML = TEXTAREA.value.replaceAll("\n", "<br>");
+                    coords = getLastCharacterCoordinates(fakeTextarea);
+                } else {
+                    coords = {x:-100, y:-100};
+                }
+                
+                let x = coords.x;
+                let y = coords.y;
+                // Устанавливаем позицию ring-loading
+                RING_LOADING.style.left = `${x}px`;
+                RING_LOADING.style.top = `${y}px`;
+            }
+
+
+
+        </script>
+        
+        <script> //calendar
+
+
+            function setCurrentDate() {
+
+                const CALENDAR_BUTTON = document.getElementById("calendar-button");
+                const CALENDAR_BUTTON_DATE = document.getElementById("calendar-button-date");
+                const CALENDAR_BUTTON_WEEK = document.getElementById("calendar-button-week");
+
+                const currentDate = new Date();
+                const day = currentDate.getDate();
+                const month = currentDate.getMonth() + 1; // Месяцы начинаются с 0
+                const dayOfWeek = currentDate.getDay();
+
+                const formattedDate = (day < 10 ? ' ' : '') + day + '/' + (month < 10 ? ' ' : '') + month;
+                const daysOfWeek = ['(MON)', '(TUE)', '(WED)', '(THU)', '(FRI)', '(SAT)', '(SUN)']; // Или используйте английские дни недели: ['(Sun)', '(Mon)', '(Tue)', '(Wed)', '(Thu)', '(Fri)', '(Sat)']
+                const formattedWeekDay = daysOfWeek[dayOfWeek === 0 ? 6 : dayOfWeek - 1];
+
+                CALENDAR_BUTTON_DATE.innerText = formattedDate;
+                CALENDAR_BUTTON_WEEK.innerText = formattedWeekDay;
+            }
+
+            setCurrentDate();
+
+
+        </script>
+
+        <script>//start dialog
+            function startDialogue(){
+                START_BUTTON.classList.remove('blink');
+                reqtext = "";
+                beginning = true;
+                let audio = new Audio('/public/audio/start_sound.mp3');
+                audio.play();
+                try {
+                    sendreq(false);
+
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        </script>
+
+        <script>
+
+            function calendarClick(){
+                
+                
+                SAVESETTINGS_BUTTON.innerHTML = "SAVE";
+                if (!leftblockShown){
+                    console.log("LEFT BLOCK SHOWN")
+                    LEFT_BLOCK.style = "display: block;"
+                    leftblockShown = true;
+                    LEFT_BLOCK.childNodes[1].childNodes[1].click()
+                    HISTORY_TEXT.scrollTop = HISTORY_TEXT.scrollHeight;
+                }else{
+                    console.log("LEFT BLOCK CLOSED")
+                    LEFT_BLOCK.style = "display: none;"
+                    leftblockShown = false;
+                }
+            }
+
+            function closeOther(thisDiv){
+                
+                const CONTENT_CONTAINER = document.getElementById("left-block-content-container");
+                const THIS_BLOCK = document.getElementById(thisDiv.id.replace("-button",""));
+                for (let i = 1; i < CONTENT_CONTAINER.childNodes.length; i++) {
+                    if (CONTENT_CONTAINER.childNodes[i] != THIS_BLOCK) {
+                        CONTENT_CONTAINER.childNodes[i].style = "display: none;";
+                    } else {
+                        CONTENT_CONTAINER.childNodes[i].style = "display: block;";
+                    }
+                }
+
+                
+            }
+
+
+            function historyShow(thisDiv){
+
+                closeOther(thisDiv)
+                if (!historyShown){
+                    HISTORY_BLOCK.style = "display: inline-block;"
+                    historyShown = true;
+                }else{
+                    HISTORY_BLOCK.style = "display: none;"
+                    historyShown = false;
+                }
+            };
+        </script>
+
+
+
+
+        
+        <script>//emotions
+            
+
+            const EMOTIONS_ARRAY = ['angry','apathetic','blushed','happy','playful','serious','thoughtful','calm','displeased','glad','moody','sad','skeptical','surprised','neutral'];
+
+            const EMOTION_SELECTOR = document.getElementById('emotion-selector');
+
+            SPRITE_BLOCK.onclick = function(){
+                if (!TEXTAREA.disabled){
+                    changeEmotionSelector(EMOTION_SELECTOR);
+                }
+                
+            };
+
+            function changeEmotionSelector(emotionSelector){
+
+                let currentEmotion = emotion;
+                console.log(currentEmotion);
+                if (charReplica&&canEdit){
+                    if (emotionSelector.style.display == "none"){
+                        emotionSelector.style.display = "block";
+                        let emotionSelectArray = document.getElementsByClassName("emotion-select");
+                        for (let i=0;i<emotionSelectArray.length;i++){
+                            
+                            if (emotionSelectArray[i].title == currentEmotion){
+                                emotionSelectArray[i].style = "background-image: url(./public/gfx/emoji/"+emotionSelectArray[i].title+".png); filter: grayscale(0%);";
+                            } else {
+                                emotionSelectArray[i].style = "background-image: url(./public/gfx/emoji/"+emotionSelectArray[i].title+".png);";
+                            }
+                        }
+
+
+                        document.addEventListener('mouseup', function(e) {
+                            if (!emotionSelector.childNodes[1].contains(e.target)) {
+                                emotionSelector.style.display = 'none';
+                            }
+                        });
+                    };
+                };
+            };
+
+
+            function changeEmotion(emotionSprite){
+
+                emotion = emotionSprite;
+                
+                if (emotion == "none" || emotion == "" || emotion == undefined){
+                    SPRITE_BLOCK.style = "display:none";
+                    return;
+                }
+
+                console.log("EMOTION CHANGED: " + emotion);
+
+
+
+                for (let emoNum = 0; emoNum<EMOTIONS_ARRAY.length;emoNum++){
+                    let thisEmo = EMOTIONS_ARRAY[emoNum];
+                }
+
+                SPRITE_BLOCK.style = "display:inline-block";
+                emotionName = emotion;
+
+                if (charId == "amadeus_kurisu"){
+
+                    if (emotion == "angry" || emotion == "blushed" || emotion == "calm" ){
+                        
+                        let rand = getRandomInt(2);
+
+                        if (rand > 0){
+                            emotionName = "hands_" + emotion;
+                        }
+                    }
+
+                    if (emotion == "skeptical" || emotion == "surprised" || emotion == "thoughtful" || emotion ==  "glad"){
+                        emotionName = "hands_" + emotion;
+                    }
+                }
+                
+
+                if (emotion=="glitchy"){
+                    document.getElementById("character-container").style = "background-color: #000;"
+                    SPRITE_BLOCK.src = "/public/gfx/" + charId + "/glitchy.gif";
+                } else {
+                    SPRITE_BLOCK.src = "/public/gfx/" + charId + "/" + emotionName + "0.png";
+                }
+                
+
+                EMOTION_SELECTOR.style.display = "none";
+            };
+
+
+
+        </script>
+
+        <script>
+
+            function historyLoad(firstTime,typing){
+
+                if (firstTime&&userChat[charId]!=undefined) {
+                    currentChat = userChat[charId].current_chat;
+                };
+                
+                console.log("ТЕКУЩИЙ ЧАТ: " + currentChat);
+
+                console.log(currentChat.length)
+
+                const TEXTAREA_CLONE = document.getElementById("chat-text-clone");
+                HISTORY_TEXT.innerHTML = "";
+
+                const VOICING_INPUT = document.getElementById("settings-voicing-input")
+                const SPEECHMODE_INPUT = document.getElementById("settings-speechmode-input")
+                const NOASSMODE_INPUT = document.getElementById("settings-noass-input")
+                const DELOOPING_INPUT = document.getElementById("settings-delooping-input")
+
+                if (voicing){
+                    VOICING_INPUT.innerHTML = "ON";
+                } else {
+                    VOICING_INPUT.innerHTML = "OFF";
+                }
+
+                if (speechMode){
+                    SPEECHMODE_INPUT.innerHTML = "ON";
+                } else {
+                    SPEECHMODE_INPUT.innerHTML = "OFF";
+                }
+
+                if (noAss){
+                    NOASSMODE_INPUT.innerHTML = "ON";
+                } else {
+                    NOASSMODE_INPUT.innerHTML = "OFF";
+                }
+
+                if (delooping){
+                    DELOOPING_INPUT.innerHTML = "ON";
+                } else {
+                    DELOOPING_INPUT.innerHTML = "OFF";
+                }
+
+
+                if (charId in userChat){
+                    if (currentChat.length == 0){ //проверка, что чат пустой
+                        changeEmotion("none");
+                        START_BUTTON_CONTAINER.style = "display: block;"
+                        START_BUTTON.style = "display: block;"
+                        CHAT_SCREEN.style = "display: none;"
+                    } else {
+                        //beginning = false;
+                        CHAT_SCREEN.style = "display: inline;"
+                        START_BUTTON_CONTAINER.style = "display: none;"
+
+                        for (let mesageNum = 0; mesageNum < currentChat.length; mesageNum++){// перебор сообщений
+
+                            let message = currentChat[mesageNum];
+                            const MESSAGE_BLOCK = document.createElement("div");
+                            if (message.role == "assistant"){
+                                MESSAGE_BLOCK.className = "historymessagefromchar";
+                                MESSAGE_BLOCK.innerHTML = "Kurisu: " + message.content;
+                            }else{
+                                MESSAGE_BLOCK.className = "historymessagefromuser";
+                                MESSAGE_BLOCK.innerHTML = username + ": " + message.content;
+                            };
+                            
+                            HISTORY_TEXT.append(MESSAGE_BLOCK);
+                        }
+
+                        let lastIndex = currentChat.length - 1;
+                        
+                        let firstMessageInChat = currentChat[0].content;
+                        let lastMessageInChat = currentChat[lastIndex].content;
+
+                        HISTORY_TEXT.scrollTop = HISTORY_TEXT.scrollHeight;
+
+                        if (currentChat[lastIndex].role == "assistant"){ //проверка, что от персонажа
+                            console.log(firstMessageInChat)
+                            console.log(lastMessageInChat)
+                            charReplica = true;
+                            ROLENAME.innerHTML = "Kurisu";
+
+                            let textOfLastMessage = lastMessageInChat.split("]")[1].trim();
+                            let emotionOfLastMessage = lastMessageInChat.split("]")[0].split("[")[1].trim();
+                            
+                            restext = textOfLastMessage;
+                            
+                            changeEmotion(emotionOfLastMessage);
+                            
+                            if (!typing){
+                                TEXTAREA.value = textOfLastMessage;
+                            };
+                            
+                            SEND_BUTTON.style = "display:none;"
+                            ANSWER_BUTTON.style = "display:inline;"
+                            REGEN_BUTTON.style = "display:inline;"
+
+                        }else{
+
+                            charReplica = false;
+                            ROLENAME.innerHTML = username;
+                        
+                        };
+
+
+                    };
+
+                };
+                
+            };
+
+
+            for (let modeNum=0;modeNum<MODE_SELECTOR.childNodes.length;modeNum++){
+                MODE_SELECTOR.childNodes[modeNum].style = "color: white;";
+            }
+            document.getElementById("switch-"+mode).style = "color: #d34300;";
+
+            function pageload(){
+
+                
+                historyLoad(true,false);
+
+
+            };
+
+
+        </script>
+
+
+
+
+        <script>//mode
+            function modeSwitch(block){
+
+                
+
+                mode = block.firstElementChild.innerHTML.replace("MODE","").toLowerCase().trim();
+
+                for (let divNum=0;divNum<MODE_SELECTOR.childNodes.length;divNum++){
+                    MODE_SELECTOR.childNodes[divNum].style = "color: white;";
+                }
+
+                block.style = "color: #d34300;";
+
+
+
+                console.log("РЕЖИМ: " + mode)
+            };
+
+        </script>
+
+
+        <script>
+
+            async function getAudioDuration(audioSrc) {
+                console.log('Получение длительности аудиофайла: ' + audioSrc);
+
+                return new Promise((resolve, reject) => {
+                    const audioElement = document.createElement('audio');
+                    audioElement.className = 'audio-element';
+                    audioElement.onloadedmetadata = function() {
+                        console.log("Длительность аудиофайла: " + audioElement.duration + " секунд");
+                        resolve(audioElement.duration * 1000); // Умножаем на 1000 для получения длительности в миллисекундах
+                    };
+                    audioElement.onerror = function(e) {
+                        console.log("Произошла ошибка при получении длительности аудиофайла: " + JSON.stringify(e));
+                        resolve(0); // Возвращаем 0 в случае ошибки
+                    };
+                    audioElement.src = audioSrc+'?noCache=' + Math.floor(Math.random() * 1000000);
+                    document.body.appendChild(audioElement); // Добавляем элемент в документ
+                    
+                });
+            }
+
+            function getAudioContext() {
+            if (!audioContext) {
+                if (window.AudioContext || window.webkitAudioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } else {
+                    console.error('Web Audio API не поддерживается в этом браузере.');
+                }
+            }
+                return audioContext;
+            }
+
+            async function checkAudioPresence(audioFile, time) {
+                try {
+                    const audioContext = getAudioContext();
+                    
+                    const response = await fetch(audioFile);
+                    const arrayBuffer = await response.arrayBuffer();
+                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    
+                    const sampleRate = audioBuffer.sampleRate;
+                    const channelData = audioBuffer.getChannelData(0); // Предполагается, что файл моно
+                    
+                    const startSample = Math.round(sampleRate * (time / 1000));
+                    const endSample = Math.round(sampleRate * ((time + 10) / 1000)); // Проверяем звук на отрезке в 100 мс
+                    
+                    let hasAudio = false;
+                    
+                    for (let i = startSample; i < endSample; i++) {
+                        if (Math.abs(channelData[i]) > 0) {
+                            hasAudio = true;
+                            break;
+                        }
+                    }
+                    
+                    return hasAudio;
+                } catch (error) {
+                    console.error('Error in checkAudioPresence:', error);
+                    throw error;
+                }
+            }
+
+
+        </script>
+
+
+        <script>
+            const TEXTAREA_CLONE = document.getElementById("chat-text-clone");
+            
+            const TEXT_MAX_LENGTH = 2500;
+
+            
+            let answerEditing = false;
+            
+            
+            function checkTextarea() {
+                const TEXTAREA_CLONE = document.getElementById("chat-text-clone");
+
+                let textlength = TEXTAREA.value.trim().length;
+                TEXTAREA_CLONE.innerHTML = TEXTAREA.value.replace("\n","<br>");
+
+                if (charReplica){
+
+                    console.log("answer editing");
+
+                    
+
+                    CANCEL_BUTTON.style = "display: inline;"
+                    SUBMIT_BUTTON.style = "display: inline;"
+                    SUBMIT_BUTTON.disabled = false;
+
+                    
+                    SEND_BUTTON.style = "display: none;"
+                    ANSWER_BUTTON.style = "display: none;"
+                    REGEN_BUTTON.style = "display: none;"
+                    BACK_BUTTON.style = "display: none;"
+                    
+                    answerEditing = true;
+
+                    CHAR_TOTAL.textContent = TEXT_MAX_LENGTH;
+                    CHAR_CURRENT.textContent = textlength;
+                    CHAR_COUNTER.style = "display: block;"
+
+                    if (textlength>TEXT_MAX_LENGTH){
+                            CHAR_COUNTER.style = "display:block;color:red;"
+                            SUBMIT_BUTTON.disabled = true;
+                    }   
+
+                } else {
+                    
+                    if (textlength == "") {
+                        SEND_BUTTON.disabled = true;
+                        CHAR_COUNTER.style = "display:none;"
+                    } else {
+                        CHAR_TOTAL.textContent = TEXT_MAX_LENGTH;
+                        CHAR_CURRENT.textContent = textlength;
+                        CHAR_COUNTER.style = "display:block;"
+                        SEND_BUTTON.disabled = false;
+
+                        if (textlength>TEXT_MAX_LENGTH){
+                            CHAR_COUNTER.style = "display:block;color:red;"
+                            SEND_BUTTON.disabled = true;
+                        }
+
+                    };
+
+                };
+
+
+            };
+
+            let focusTextarea = false
+
+            function isFocusedTextarea(){
+
+                if (charReplica){
+                    skip = true;
+                }
+                
+
+                if (focusTextarea){
+                    focusTextarea = false;
+                }else{
+                    focusTextarea = true;
+                }
+
+            };
+
+            document.addEventListener('keydown', function(event) {
+
+                if (event.code == 'Enter' && beginning) {
+                    startDialogue();
+                }
+
+                if (event.code == 'Enter' && (event.ctrlKey || event.metaKey)) {
+                    if (charReplica){
+                        
+                        if (answerEditing){
+                            SUBMIT_BUTTON.click();
+                        }else{
+                            ANSWER_BUTTON.click();
+                        };
+                    }else{
+                        SEND_BUTTON.click();
+                    };     
+                }
+            });
+
+            SEND_BUTTON.addEventListener('click', function(event) {     
+                
+                if (speechMode){
+
+                } else {
+                    voiceData = {};
+                    reqtext = TEXTAREA.value;          
+                    
+                    console.log("REQUEST CHANGED: " + reqtext);
+                    sendreq(false);
+                }
+            });
+            ANSWER_BUTTON.addEventListener('click', function(event) {
+
+                if (speechMode){
+                    allowRecording = true;
+                    startRec();
+                    ANSWER_BUTTON.style.display = "none";
+                    REGEN_BUTTON.style.display = "none";
+                    SEND_BUTTON.style.display = "inline";
+                    SEND_BUTTON.disabled = false;
+                    CANCEL_BUTTON.style.display = "inline";
+                } else {
+                    restext = TEXTAREA.value;
+                    TEXTAREA.value = reqtext;     
+                    TEXTAREA.focus();
+                    if (TEXTAREA.value!=""){
+                        SEND_BUTTON.disabled = false;
+                    }
+
+                    createTextareaClone();
+                    
+                    console.log("RESPONCE CHANGED: " + restext);
+                    
+                    EMOTION_SELECTOR.style.display = "none";
+                    answer();
+                }
+
+            });
+            REGEN_BUTTON.addEventListener('click', function(event) {
+                
+                createTextareaClone();
+                sendreq(true);
+            });
+            BACK_BUTTON.addEventListener('click', function(event) {
+                reqtext = TEXTAREA.value;
+                TEXTAREA.value = restext;   
+
+                
+                             
+                console.log("REQUEST CHANGED: " + reqtext);
+                backToAnswer();
+            });
+            SUBMIT_BUTTON.addEventListener('click', function(event) {
+                
+                restext = TEXTAREA.value;
+                console.log("RESPONCE CHANGED: " + restext);
+                submitEditing();
+            });
+            CANCEL_BUTTON.addEventListener('click', function(event) {
+
+
+
+                TEXTAREA.value = restext;                
+            
+                backToAnswer();
+                
+            });
+
+            CLEAR_BUTTON.addEventListener('click', function(event) {
+                if (confirm('Are you sure you want to clear chat history?')) {
+                    historyEdit("clear");
+                };
+        
+            });
+            REMOVE_BUTTON.addEventListener('click', function(event) {
+                historyEdit("remove");
+            });
+
+            SAVESETTINGS_BUTTON.addEventListener('click', function(event) {
+                historyEdit("settingsSave");
+            });
+
+            DEFAULTSETTINGS_BUTTON.addEventListener('click', function(event) {
+                if (confirm('Are you sure you want to set settings to default?')) {
+                    historyEdit("settingsDefault");
+                };
+            });
+
+            function historyEdit(type){
+
+                onSending(true);
+
+                const TEXTAREA_CLONE = document.getElementById('chat-text-clone');
+
+                let data = {
+                    userId:userId,
+                    charId:charId,
+                    token:TOKEN,
+                    type:type,
+                };
+
+                let settings = {
+                    voicing: voicing,
+                    speechMode: speechMode,
+                    noAss: noAss,
+                    delooping: delooping
+                };
+
+                data.settings = JSON.stringify(settings);
+                console.log(data)
+
+                if (type == "settingsSave"){
+                    SAVESETTINGS_BUTTON.innerHTML = "Saving...";
+                }
+
+                
+                let url = "/change_history"
+                console.log("Changing history...")
+
+
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+                    },
+                    body: new URLSearchParams(data)
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.error === "") {
+                            if (type != "clear") {
+                                textResult = result.text;
+                                console.log("ТЕКСТ ОТ GPT: " + textResult);
+                                TEXTAREA.value = textResult;
+                                
+                                if (type == "settingsSave"){
+                                    SAVESETTINGS_BUTTON.innerHTML = "SAVED";
+                                }
+                                
+                                restext = textResult;
+
+                                console.log(restext);
+                                emotion = result.emotion;
+                                changeEmotion(emotion);
+                                console.log("ЭМОЦИЯ ОТ GPT: " + emotion);
+
+                                reqtext = result.lastRequest;
+                                console.log("REQUEST CHANGED: " + reqtext);
+
+                                isCharReplica(true);
+                                
+                                onSending(false);
+
+                                currentChat = result.chat;
+                                console.log(currentChat);
+
+                                HISTORY_TEXT.innerHTML = "";
+                                historyLoad(false, false);
+                            } else {
+                                textResult = "";
+                                console.log("ТЕКСТ ОТ GPT: " + textResult);
+                                TEXTAREA.value = textResult;
+                                                               
+                                
+                                restext = "";
+
+                                console.log(restext);
+                                emotion = "none";
+                                changeEmotion(emotion);
+                                console.log("ЭМОЦИЯ ОТ GPT: " + emotion);
+
+                                reqtext = result.lastRequest;
+                                console.log("REQUEST CHANGED: " + reqtext);
+
+                                isCharReplica(false);
+                                
+                                onSending(false);
+
+                                currentChat = "";
+                                console.log(currentChat);
+
+                                BACK_BUTTON.style = "display:none;";
+
+                                HISTORY_TEXT.innerHTML = "";
+                                historyLoad(false, false);
+                            }
+                        } else {
+                            alert(result.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.log("ERROR: " + error);
+                    });
+
+              
+            };
+
+
+            function backToAnswer(){
+                SUBMIT_BUTTON.style = "display: none;"
+                CANCEL_BUTTON.style = "display: none;"
+                CHAR_COUNTER.style = "display:none;"
+                isCharReplica(true);
+            };
+
+            function submitEditing(){
+                SUBMIT_BUTTON.style = "display: none;"
+                CANCEL_BUTTON.style = "display: none;"
+                answerEditing = false;
+                isCharReplica(true);
+            };
+
+            
+
+            function answer(){
+
+                if (reqtext==""){
+                    SEND_BUTTON.disabled = true;
+                };
+                
+                isCharReplica(false);
+                
+            };
+
+            
+
+            function isCharReplica(bool){
+                if (bool){
+                    ANSWER_BUTTON.style = "display: inline;"
+                    REGEN_BUTTON.style = "display: inline;"
+                    SEND_BUTTON.style = "display: none;"
+                    BACK_BUTTON.style = "display: none;"
+                    charReplica = true;
+                    ROLENAME.innerHTML = "Kurisu";
+                    CHAR_COUNTER.style = "display: none;"
+                    
+                } else {
+                    ANSWER_BUTTON.style = "display: none;"
+                    REGEN_BUTTON.style = "display: none;"
+                    SEND_BUTTON.style = "display: inline;"
+                    BACK_BUTTON.style = "display: inline;"
+                    SUBMIT_BUTTON.style = "display: none;"
+                    CANCEL_BUTTON.style = "display: none;"
+                    charReplica = false;
+                    ROLENAME.innerHTML = username;
+                };
+            };
+
+            
+
+            function waitForCanPlayThrough(audioElement) {
+                return new Promise((resolve, reject) => {
+                    audioElement.addEventListener("canplaythrough", () => {
+                        resolve("Audio can play through");
+                    });
+
+                    audioElement.addEventListener("error", () => {
+                        reject("Error loading audio");
+                    });
+                });
+            }
+
+            function partAudioVoicing(audioPresenceArray,partToCheck){
+                let audioPresence = audioPresenceArray[partToCheck];
+                if (audioPresence==undefined){
+                    audioPresence = 0;
+                }
+                if (emotion!="glitchy"){
+                    SPRITE_BLOCK.src = "/public/gfx/" + charId + "/" + emotionName + audioPresence + ".png";
+                }
+                
+            };
+            
+            async function textTyping(){
+                RING_LOADING.style.display = "none"
+                
+                let audioPresenceArray = [];
+                let duration = 0;
+
+                skip = false;
+
+                let audioPath = audioUrl;
+                
+                let typeDelay = 60;            
+                if (voicing){
+                    duration = await getAudioDuration(audioPath);
+                    console.log ('Длительность аудио: ' + duration + " мс");
+
+                    // Здесь можно выполнить действия с полученной длительностью 
+
+                    for (let timeNum = 0; timeNum < duration; timeNum = timeNum + typeDelay) {
+                        let audioPresence = true;
+                        //audioPresence = await checkAudioPresence(audioPath, timeNum)
+                        let randNum = 1 + getRandomInt(2);
+                        if (audioPresence) {
+                            audioPresenceArray.push(randNum);
+                        } else {
+                            audioPresenceArray.push("0");
+                        }
+                    }
+
+                    console.log(audioPresenceArray);
+
+                    console.log("VOICING!");
+
+                    let audioElement = document.getElementsByClassName('audio-element')[document.getElementsByClassName('audio-element').length-1];
+                    //audioElement.src = audioPath+'?noCache=' + Math.floor(Math.random() * 1000000);
+                    audioElement.play();
+                }
+
+                onSending(false);
+                changeEmotion(emotion);
+
+
+                console.log("TYPING")
+
+                let textSplitted = restext.split('');
+
+                let glitchy = false;
+                if (emotion=="glitchy"){
+                    glitchy = true;
+                }
+
+                let newChar = "";
+                let value = "";
+                TEXTAREA.value = "";
+
+                if (!beginning&&document.getElementById("chat-text-clone")!=null){
+                    document.getElementById("chat-text-clone").innerHTML = "";
+                }
+
+                let partToCheck = 0;
+
+                let isVoiceStarted = false;
+
+                let charNum = 0;
+
+                console.log("textSplitted.length: " + textSplitted.length);
+
+                let typeIntevalsetInterval = setInterval (function () {
+
+
+                    let lastSymbol = charNum==textSplitted.length; //кончились символы
+
+
+                    if (lastSymbol){ 
+                        if (voicing){
+                            if (partToCheck<audioPresenceArray.length){
+                                partAudioVoicing(audioPresenceArray,partToCheck);
+                            } else {
+                                clearInterval(typeIntevalsetInterval);
+                                
+                                if (!glitchy){
+                                    SPRITE_BLOCK.src = "/public/gfx/" + charId + "/" + emotionName + "0" + ".png";
+                                }
+                                const AUDIO_PLAYER = document.getElementById("audio-player");
+                                //AUDIO_PLAYER.remove();
+                            }
+                        } else {
+                            if (!glitchy){
+                                SPRITE_BLOCK.src = "/public/gfx/" + charId + "/" + emotionName + "0" + ".png";
+                            }
+                        }
+                        
+                    } else {
+                        partAudioVoicing(audioPresenceArray,partToCheck);
+                        newChar = textSplitted[charNum];
+                        value = TEXTAREA.value;
+                        TEXTAREA.value = value + newChar;
+                        console.log("BEGINING " + beginning);
+                        if (!beginning&&document.getElementById("chat-text-clone")!=null){
+                            document.getElementById("chat-text-clone").innerHTML = value + newChar;
+                        }
+                        charNum++;
+                    }
+
+                    if (skip){
+                        console.log("SKIPPED");
+                        clearInterval(typeIntevalsetInterval);
+                        TEXTAREA.value = restext;
+                        if (!glitchy){
+                            SPRITE_BLOCK.src = "/public/gfx/" + charId + "/" + emotionName + "0" + ".png";
+                        }
+                        
+                        onSending(false);
+                        console.log("SKIP: " + restext);
+                        console.log("END TYPING")
+                
+                        const AUDIO_PLAYER = document.getElementById("audio-player");
+                        AUDIO_PLAYER.remove();
+                    }
+
+                    partToCheck++;
+
+                    return;
+                },typeDelay);
+
+            };
+            
+            function sendreq(regeneration, audioData){
+                
+                onSending(true);
+
+                let data = {
+                    userId:userId,
+                    charId:charId,
+                    lastEmotion:emotion,
+                    lastMessage:restext,
+                    text:reqtext,
+                    regeneration:regeneration,
+                    scenario: scenario,
+                    mode: mode,
+                    token:TOKEN,
+                    voicing:voicing,
+                    connectionType: "amadeus_web",
+                    beginning:beginning,
+                    noAss:noAss,
+                    delooping:delooping
+                };
+
+                if (audioData!=undefined){
+                    data.audioData = audioData;
+                }
+
+                console.log(data)
+
+                let url = "/chat"
+                console.log("Sending message...")
+
+                START_BUTTON.innerHTML = 'LOADING...';
+
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Content-Range": "bytes */*",
+
+                        
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    console.log("FETCH SUCCESS");
+                    console.log(result);
+
+                    if (result.remaining){
+                        alert("AMADEUS IS CURRENTLY UNAVALABLE. PLEASE TRY AGAIN LATER.");
+                    }
+
+                    if (result.error != "RECOGNITION_ERROR"){
+                        if (speechMode){
+                            CANCEL_BUTTON.style.display = "none";
+                        }
+
+                        audioUrl = result.audioUrl;
+
+                        textResult = result.text;
+                        console.log("ТЕКСТ ОТ GPT: " + textResult);
+
+                        restext = textResult;
+                        
+                        textTyping();
+                        // onSending(false);
+                        // changeEmotion(emotion);
+                        emotion = result.emotion;
+                        
+                        console.log("ЭМОЦИЯ ОТ GPT: " + emotion);
+
+                        reqtext = "";  
+                        console.log("REQUEST CHANGED: " + reqtext + "EMPTY");
+
+                        isCharReplica(true);
+
+
+                        currentChat = result.chat;
+                        console.log(currentChat);
+                        HISTORY_TEXT.innerHTML = "";
+                        historyLoad(false, true);
+                    } else {
+                        onSending(false);
+                    }
+
+                })
+                .catch(error => {
+                    START_BUTTON.innerHTML= 'ERROR';
+                    console.log("ERROR: " + error);
+                });
+
+
+            }
+
+            function endDialogue(){
+                changeEmotion('none');
+                REGEN_BUTTON.disabled = true;
+                ANSWER_BUTTON.disabled = true;
+                TEXTAREA.disabled = true;
+            }
+
+            function onSending (bool){
+
+                stopRec();
+                updateRingLoadingPosition();
+                console.log("SENDING: " + bool);
+                if (bool){
+                    allowRecording = false;
+                    REGEN_BUTTON.disabled = true;
+                    ANSWER_BUTTON.disabled = true;
+                    RING_LOADING.style.display = "block";
+                    TEXTAREA.disabled = true;
+                }else{
+                    allowRecording = true;
+                    REGEN_BUTTON.disabled = false;
+                    ANSWER_BUTTON.disabled = false;
+                    TEXTAREA.disabled = false;
+                    RING_LOADING.style.display = "none";
+                };
+            };
+        </script>
+
+        <script>  
+            let speechDetected = false;
+
+            const volumeMeter = document.getElementById("volume-meter");
+            const volumeMeterContext = volumeMeter.getContext("2d");
+
+            let recordingContext;
+            let microphone;
+            let analyser;
+            let mediaRecorder;
+            let recordedChunks = [];
+            const volumeThreshold = 0.05; // Задайте порог громкости здесь
+            let isRecording = false;
+            let silenceTimeout;
+            let isCancelled = false;
+
+            async function startRec() {
+            
+            console.log("Start monitoring...");
+            // Получение доступа к микрофону
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+            // Создание recordingContext и настройка анализатора
+            recordingContext = new AudioContext();
+            microphone = recordingContext.createMediaStreamSource(stream);
+            analyser = recordingContext.createAnalyser();
+            analyser.fftSize = 2048;
+            microphone.connect(analyser);
+            const bufferLength = analyser.fftSize;
+            const dataArray = new Uint8Array(bufferLength);
+
+            // Создание MediaRecorder
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = (e) => {
+                recordedChunks.push(e.data);
+            };
+
+            SEND_BUTTON.addEventListener('click', () => {
+                if (isRecording) {
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    ANSWER_BUTTON.style.display = "inline";
+                    REGEN_BUTTON.style.display = "inline";
+                    SEND_BUTTON.style.display = "none";
+                    SEND_BUTTON.disabled = true;
+                    CANCEL_BUTTON.style.display = "none";
+                    
+                }
+            })
+
+            CANCEL_BUTTON.addEventListener('click', () => {
+                if (isRecording) {
+                    isCancelled = true;
+                    isRecording = false;
+                    allowRecording = false;
+                    
+                }
+            })
+
+            mediaRecorder.onstop = async () => {
+                console.log("Record sending");
+                const blob = new Blob(recordedChunks, { type: 'audio/wav' });
+                recordedChunks = [];
+                
+                if (!isCancelled){
+                    console.log("RECORD SENDING");
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    
+                    isCancelled = false;
+                    reader.onload = () => {
+                        const url = reader.result;
+                        console.log(url);
+                        updateRingLoadingPosition();
+                        createTextareaClone();
+                        sendreq(false, url);
+                    };
+                } else {
+                    console.log("RECORD CANCELLED");
+                    isCancelled = false;
+                }
+
+
+
+                
+
+                // Отправка записи на ваш API
+                // const formData = new FormData();
+                // formData.append('audio', blob, 'audio.webm');
+                // await fetch('your-api-url', { method: 'POST', body: formData });
+            };
+
+            // Функция проверки громкости и отрисовки индикатора
+            function checkVolume() {
+                analyser.getByteTimeDomainData(dataArray);
+
+                let sum = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    const value = (dataArray[i] - 128) / 128;
+                    sum += Math.abs(value);
+                }
+
+                const averageVolume = sum / bufferLength;
+
+                if (averageVolume > volumeThreshold && !isRecording && allowRecording) {
+                    mediaRecorder.start();
+                    isRecording = true;
+                    clearTimeout(silenceTimeout);
+                    console.log('Recording started');
+                } else if (averageVolume <= volumeThreshold && isRecording) {
+                    if (!silenceTimeout) {
+                    silenceTimeout = setTimeout(() => {
+                        mediaRecorder.stop();
+                        isRecording = false;
+                        recordedChunks = [];
+                        console.log('Recording stopped');
+                        silenceTimeout = null;
+                    }, 10000); // 2 секунды таймаута перед остановкой записи
+                    }
+                } else {
+                    clearTimeout(silenceTimeout);
+                    silenceTimeout = null;
+                }
+
+                if (isRecording) {
+                    renderVolumeMeter(averageVolume);
+                } else {
+                    renderVolumeMeter(0);
+                }
+
+                requestAnimationFrame(checkVolume);
+                }
+
+                function renderVolumeMeter(volume) {
+                    const width = volumeMeter.width;
+                    const height = volumeMeter.height;
+
+                    volumeMeterContext.clearRect(0, 0, width, height);
+                    volumeMeterContext.fillStyle = '#f95f00';
+                    volumeMeterContext.fillRect(0, 0, width * volume, height);
+                }
+
+                checkVolume();
+            }
+
+            function stopRec() {
+
+                console.log("Stop monitoring.");
+                // Остановка анализатора и микрофона
+                if (recordingContext) {
+                    recordingContext.close().then(() => {
+                    recordingContext = null;
+                    if (isRecording) {
+                        mediaRecorder.stop();
+                        isRecording = false;
+                    }
+                    });
+                }
+            }
+
+
+        </script>
+        <script>
+        
+        </script>
+
+
+
+    </body>
+
+
+</html>

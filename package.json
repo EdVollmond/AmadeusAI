@@ -1,0 +1,48 @@
+{
+  "name": "amadeusjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.26.1",
+    "@fal-ai/serverless-client": "^0.14.2",
+    "@google/generative-ai": "^0.17.1",
+    "@huggingface/inference": "^2.8.0",
+    "@mistralai/mistralai": "^1.0.2",
+    "axios": "^1.7.4",
+    "body-parser": "^1.20.2",
+    "cld": "^2.10.0",
+    "cohere-ai": "^7.12.0",
+    "cookie-session": "^2.0.0",
+    "crypto": "^1.0.1",
+    "deepinfra": "^2.0.2",
+    "dotenv": "^16.4.5",
+    "download": "^8.0.0",
+    "eld": "^1.0.0",
+    "express": "^4.18.2",
+    "fs": "^0.0.1-security",
+    "gpt-tokenizer": "^2.2.1",
+    "gtts": "^0.2.1",
+    "http-proxy-agent": "^7.0.2",
+    "languagedetect": "^2.0.0",
+    "litellm": "^0.12.0",
+    "natural": "^8.0.1",
+    "node-wav": "^0.0.2",
+    "ollama": "^0.5.6",
+    "openai": "^4.55.1",
+    "replicate": "^0.32.1",
+    "sentiment": "^5.0.2",
+    "synonyms": "^1.0.1",
+    "telegraf": "^4.16.3",
+    "undici": "^6.19.8",
+    "web-audio-api": "^0.2.2"
+  },
+  "devDependencies": {
+    "@gradio/client": "^1.5.1"
+  }
+}

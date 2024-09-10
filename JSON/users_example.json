@@ -1,0 +1,13 @@
+{
+  "User_example": {
+    "name": "John",
+    "token": "qwerty",
+    "telegram_username": "user",
+    "telegram_chat_ids": {
+      "amadeus_kurtis": "0000",
+      "amadeus_kurisu": "0000"
+    },
+    "input_tokens": 0,
+    "output_tokens": 0
+  }
+}

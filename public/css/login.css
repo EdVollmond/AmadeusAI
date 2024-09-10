@@ -1,0 +1,118 @@
+@font-face {
+    font-family: 'mongolian_baiti'; 
+    src: url('/fonts/Mongolian Baiti.ttf') format("truetype"); ;
+    font-style: normal; 
+    font-weight: normal; 
+} 
+
+:root {
+    --color-text-yellow: #e7be56;
+  }
+  
+  
+
+
+#logging {
+    display: block;
+    position: relative;
+    margin: auto;
+    width: 860px;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 24pt;
+    margin-top: 64px;
+    color: var(--color-text-yellow);
+    text-shadow: 0 0 16px #f95f00, 0 0 16px #f95f00;
+}
+
+
+#logging label{
+    display: inline-block;
+    vertical-align: bottom;
+    margin-right: -8px;
+    margin-bottom: 0px;
+    transform: scaleX(0.7) 
+}
+
+
+#logging img {
+    display: block;
+    margin: auto;
+    width: 640px;
+}
+
+form {
+    margin-top: 32px;
+    width: 800px;
+}
+
+
+#logiing-form {
+    display: block;
+    width: 100%;
+    margin-top: 32px;
+}
+
+#input-container-userid{
+    text-align: right;
+    margin-right: 46px;
+}
+
+#input-container-password{
+    text-align: right;
+    margin-top: 8px;
+   
+}
+
+
+.login-field{
+    width: 520px;
+    height: 36px;
+    background-color: #000000;
+    border-style:solid;
+    border-color: #ababab;
+    border-width: 1px;
+    color: var(--color-text-yellow);
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 18pt;
+    text-shadow: 0 0 16px #f95f00, 0 0 16px #f95f00;
+    position: relative;
+    padding-left: 16px;
+}
+
+
+
+
+
+#login-btn {
+    height: 38px;
+    width: 38px;
+    display: inline-block;
+    vertical-align: bottom;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    background: url("/public/gfx/button_login.png") no-repeat;
+    background-size: 38px;
+    border: none;
+    color: #00000000;
+}
+
+
+#login-btn:hover {
+
+    background-position: 0 -38px;
+}
+
+#error-field {
+    
+    position: relative;
+    display: block;
+    font-family: 'Times New Roman', Times, serif;
+    text-align: center;
+    font-size: 16pt;
+    margin-top: 24px;
+    color: red;
+    text-shadow: 0 0 16px red, 0 0 16px red;
+}
+
+  
+  
