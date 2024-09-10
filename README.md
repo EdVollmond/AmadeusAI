@@ -112,5 +112,4 @@ WIP
 
 Official Telegram channel of the project: https://t.me/kurisu_shrine
 
-
 ![](https://github.com/EdVollmond/AmadeusAI/blob/main/screen1.png)
