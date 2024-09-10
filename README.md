@@ -110,7 +110,7 @@ By default, the server will start at http://localhost:8000/, where you can conne
 WIP
 
 ## Contact
-
+Official Discord channel of the project: https://discord.gg/bAanXSXMcd
 Official Telegram channel of the project: https://t.me/kurisu_shrine
 
 ![](https://github.com/EdVollmond/AmadeusAI/blob/main/screen1.png)
