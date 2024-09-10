@@ -1,6 +1,6 @@
 # AmadeusAI
 
-![](https://i.ibb.co/1rh1NwM/screen0.png)
+![](https://github.com/EdVollmond/AmadeusAI/blob/main/screen0.png)
 
 https://youtu.be/nJKQ2mx9Gns?feature=shared
 
@@ -113,4 +113,4 @@ WIP
 Official Telegram channel of the project: https://t.me/kurisu_shrine
 
 
-[![](https://i.ibb.co/17JC8qL/screen1.png)
+![](https://github.com/EdVollmond/AmadeusAI/blob/main/screen1.png)
