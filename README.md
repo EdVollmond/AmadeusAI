@@ -1,8 +1,6 @@
 # AmadeusAI
 
-
 ![](https://i.ibb.co/1rh1NwM/screen0.png)
- 
 
 https://youtu.be/nJKQ2mx9Gns?feature=shared
 
