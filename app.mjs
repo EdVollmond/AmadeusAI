@@ -38,14 +38,10 @@ const HOST = 'localhost';
 
 const APP = EXPRESS();
 
-const OPTIONS = {
-	key: FS.readFileSync(__dirname+"/server.key"),
-	cert: FS.readFileSync(__dirname+"/server.crt"),
-	
-};
+
 //console.log(OPTIONS);
 
-HTTP.createServer(OPTIONS, APP)
+HTTP.createServer(APP)
   .listen(PORT, function (req, res) {
 	logging(`Запущен сервер на http://${HOST}:${PORT}`)
 });
