@@ -3,7 +3,7 @@
 
 [![](https://github.com/EdVollmond/AmadeusAI/blob/main/screen0.png)](https://github.com/EdVollmond/AmadeusAI/blob/main/screen0.png)
 
-## [VIDEO DEMO](https://youtu.be/nJKQ2mx9Gns?feature=shared)
+### [VIDEO DEMO](https://youtu.be/nJKQ2mx9Gns?feature=shared)
 
 ## About
 
